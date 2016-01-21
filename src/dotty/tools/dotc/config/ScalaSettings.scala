@@ -22,6 +22,7 @@ class ScalaSettings extends Settings.SettingGroup {
   val encoding = StringSetting("-encoding", "encoding", "Specify character encoding used by source files.", Properties.sourceEncoding)
   val explaintypes = BooleanSetting("-explaintypes", "Explain type errors in more detail.")
   val feature = BooleanSetting("-feature", "Emit warning and location for usages of features that should be imported explicitly.")
+  val parser = ChoiceSetting("-parser", "parser", "Select the parser used", List("default", "scalaparse"), "default")
   val g = ChoiceSetting("-g", "level", "Set level of generated debugging info.", List("none", "source", "line", "vars", "notailcalls"), "vars")
   val help = BooleanSetting("-help", "Print a synopsis of standard options")
   val nowarn = BooleanSetting("-nowarn", "Generate no warnings.")

@@ -45,7 +45,7 @@ object MarkupParsers {
     override def getMessage = "input ended while parsing XML"
   }
 
-  class MarkupParser(parser: Parser, final val preserveWS: Boolean) extends MarkupParserCommon {
+  class MarkupParser(parser: DefaultParser, final val preserveWS: Boolean) extends MarkupParserCommon {
 
     import Tokens.{ LBRACE, RBRACE }
 

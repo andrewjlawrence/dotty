@@ -6,7 +6,7 @@ import Phases._
 import Contexts._
 import Symbols._
 import dotty.tools.dotc.parsing.JavaParsers.JavaParser
-import parsing.Parsers.Parser
+import parsing.Parsers.DefaultParser
 import config.Printers._
 import util.Stats._
 import scala.util.control.NonFatal
@@ -31,7 +31,9 @@ class FrontEnd extends Phase {
     val unit = ctx.compilationUnit
     unit.untpdTree =
       if (unit.isJava) new JavaParser(unit.source).parse()
-      else new Parser(unit.source).parse()
+      else if (ctx.settings.parser.value.contains("scalaparse")) 
+              new DefaultParser(unit.source).parse()
+              else new DefaultParser(unit.source).parse()
     val printer = if (ctx.settings.Xprint.value.contains("parser")) default else typr
     printer.println("parsed:\n" + unit.untpdTree.show)
   }

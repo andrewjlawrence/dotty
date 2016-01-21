@@ -9,7 +9,7 @@ import Flags.Mutable
 import Names._, StdNames._, ast.Trees._, ast.{tpd, untpd}
 import Symbols._, Contexts._
 import util.Positions._
-import Parsers.Parser
+import Parsers.DefaultParser
 import scala.reflect.internal.util.StringOps.splitWhere
 import scala.language.implicitConversions
 
@@ -24,7 +24,7 @@ import scala.language.implicitConversions
  *  @author  Burak Emir
  *  @version 1.0
  */
-class SymbolicXMLBuilder(parser: Parser, preserveWS: Boolean)(implicit ctx: Context) {
+class SymbolicXMLBuilder(parser: DefaultParser, preserveWS: Boolean)(implicit ctx: Context) {
 
   import Constants.Constant
   import untpd._

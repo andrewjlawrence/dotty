@@ -48,8 +48,8 @@ object Parsers {
    *  if not, the AST will be supplemented.
    */
   def parser(source: SourceFile)(implicit ctx: Context) =
-    if (source.isSelfContained) new ScriptParser(source)
-    else new Parser(source)
+    if (source.isSelfContained) new DefaultScriptParser(source)
+    else new DefaultParser(source)
 
   abstract class ParserCommon(val source: SourceFile)(implicit ctx: Context) extends DotClass {
 
@@ -97,8 +97,12 @@ object Parsers {
       ctx.error(msg, source atPos pos)
 
   }
-
-  class Parser(source: SourceFile)(implicit ctx: Context) extends ParserCommon(source) {
+   
+  trait Parser {
+        def parse(): Tree 
+  }
+    
+  class DefaultParser(source: SourceFile)(implicit ctx: Context) extends ParserCommon(source) {
 
     val in: Scanner = new Scanner(source)
 
@@ -2127,7 +2131,7 @@ object Parsers {
   }
 
 
-  class OutlineParser(source: SourceFile)(implicit ctx: Context) extends Parser(source) {
+  class DefaultOutlineParser(source: SourceFile)(implicit ctx: Context) extends DefaultParser(source) {
 
     def skipBraces[T](body: T): T = {
       accept(LBRACE)
