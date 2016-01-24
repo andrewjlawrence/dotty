@@ -101,8 +101,22 @@ object Parsers {
   trait Parser {
         def parse(): Tree 
   }
-    
-  class DefaultParser(source: SourceFile)(implicit ctx: Context) extends ParserCommon(source) {
+  
+  class DummyParser(source: SourceFile)(implicit ctx: Context) extends ParserCommon(source) with Parser {
+
+    val in: Scanner = new Scanner(source)
+
+   
+    /** This is the general parse entry point.
+     *  Overridden by ScriptParser
+     */
+    def parse(): Tree = {
+      ctx.warning("Hello, I am a dummy parser", source atPos Position(0))
+      theEmptyTree
+    }
+  }  
+
+  class DefaultParser(source: SourceFile)(implicit ctx: Context) extends ParserCommon(source) with Parser {
 
     val in: Scanner = new Scanner(source)
 
