@@ -1,4 +1,4 @@
-package scalaparse
+package dottyscalaparse
 
 import acyclic.file
 import syntax.Basic

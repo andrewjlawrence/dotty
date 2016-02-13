@@ -1,4 +1,4 @@
-package scalaparse
+package dottyscalaparse
 
 import fastparse.noApi._
 trait Types extends Core{

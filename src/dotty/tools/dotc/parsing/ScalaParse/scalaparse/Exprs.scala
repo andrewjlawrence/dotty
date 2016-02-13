@@ -1,8 +1,8 @@
-package scalaparse
+package dottyscalaparse
 
 import acyclic.file
 
-import scalaparse.syntax.Identifiers
+import dottyscalaparse.syntax.Identifiers
 import fastparse.noApi._
 trait Exprs extends Core with Types with Xml{
 
