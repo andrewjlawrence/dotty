@@ -1,3 +1,6 @@
+package dotty.tools
+package dotc
+package parsing
 package dottyscalaparse
 
 import fastparse.noApi._

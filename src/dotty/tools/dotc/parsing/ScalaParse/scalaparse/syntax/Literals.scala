@@ -1,3 +1,6 @@
+package dotty.tools
+package dotc
+package parsing
 package dottyscalaparse.syntax
 
 import acyclic.file
@@ -7,6 +10,7 @@ import Basic._
 import Identifiers._
 
 trait Literals { l =>
+  import ast.untpd._
   def Block: P0
 
   /**

@@ -1,3 +1,6 @@
+package dotty.tools
+package dotc
+package parsing
 package dottyscalaparse.syntax
 
 import acyclic.file
