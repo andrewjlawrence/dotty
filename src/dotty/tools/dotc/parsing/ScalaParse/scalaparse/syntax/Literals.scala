@@ -8,6 +8,8 @@ import fastparse.all._
 import fastparse.parsers.Intrinsics
 import Basic._
 import Identifiers._
+import util.Positions._
+import core.Constants._
 
 trait Literals { l =>
   import ast.untpd._
@@ -42,12 +44,12 @@ trait Literals { l =>
     val Float = {
       def Thing = P( DecNum ~ Exp.? ~ FloatType.? )
       def Thing2 = P( "." ~ Thing | Exp ~ FloatType.? | Exp.? ~ FloatType )
-      P( "." ~ Thing | DecNum ~ Thing2 )
+      P( "." ~ Thing | DecNum ~ Thing2 ).!.map((x : String) => x.toFloat).map(Constant).map(Literal)
     }
 
-    val Int = P( (HexNum | DecNum) ~ CharIn("Ll").? )
+    val Int = P( (HexNum | DecNum) ~ CharIn("Ll").? ).!.map((x : String) => x.toInt).map(Constant).map(Literal)
 
-    val Bool = P( Key.W("true") | Key.W("false")  )
+    val Bool = P( Key.W("true") | Key.W("false")  ).!.map( (x: String) => if (x == "true") true else false).map(Constant).map(Literal)
 
     // Comments cannot have cuts in them, because they appear before every
     // terminal node. That means that a comment before any terminal will
@@ -64,13 +66,13 @@ trait Literals { l =>
     val Escape = P( "\\" ~/ (CharIn("""btnfr'\"]""") | OctalEscape | UnicodeEscape ) )
 
     // Note that symbols can take on the same values as keywords!
-    val Symbol = P( Identifiers.PlainId | Identifiers.Keywords )
+    val Symbol = P( Identifiers.PlainId | Identifiers.Keywords ).!.map(SymbolLit)
 
     val Char = {
       // scalac 2.10 crashes if PrintableChar below is substituted by its body
       def PrintableChar = CharPred(CharPredicates.isPrintableChar)
 
-      P( (Escape | PrintableChar) ~ "'" )
+      P( (Escape | PrintableChar) ~ "'" ).!.map( (x: String) => if (x.length > 0) x.charAt(0) else 0).map(Constant).map(Literal)
     }
 
     class InterpCtx(interp: Option[P0]){
@@ -97,13 +99,11 @@ trait Literals { l =>
         val NonStringEnd = P( !CharIn("\n\"") ~ AnyChar )
         P( (StringChars | Interp | LiteralSlash | Escape | NonStringEnd ).rep )
       }
-      val String = {
-        P {
-          (Id ~ TQ ~/ TripleChars ~ TripleTail) |
+      val String =  {
+        P((Id ~ TQ ~/ TripleChars ~ TripleTail) |
           (Id ~ "\"" ~/ SingleChars(true)  ~ "\"") |
           (TQ ~/ NoInterp.TripleChars ~ TripleTail) |
-          ("\"" ~/ NoInterp.SingleChars(false) ~ "\"")
-        }
+          ("\"" ~/ NoInterp.SingleChars(false) ~ "\"")).!.map(Constant).map(ast.untpd.Literal)
       }
 
     }

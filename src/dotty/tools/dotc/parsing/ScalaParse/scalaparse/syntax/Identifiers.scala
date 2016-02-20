@@ -2,12 +2,14 @@ package dotty.tools
 package dotc
 package parsing
 package dottyscalaparse.syntax
-
 import acyclic.file
 import fastparse.all._
 import Basic._
-object Identifiers{
+import util.Positions._
+import core.Constants._
 
+object Identifiers{
+  import ast.untpd._
   val Operator = P(
     !Keywords ~ (!("/*" | "//") ~ (CharsWhile(x => isOpChar(x) && x != '/') | "/")).rep(1)
   )
@@ -18,7 +20,7 @@ object Identifiers{
   val PlainId = P( !Keywords ~ Upper ~ IdRest(true) | VarId | Operator ~ (!OpChar | &("/*" | "//")) )
   val PlainIdNoDollar = P( !Keywords ~ Upper ~ IdRest(false) | VarId0(false) | Operator )
   val BacktickId = P( "`" ~ CharsWhile(_ != '`') ~ "`" )
-  val Id: P0 = P( BacktickId | PlainId )
+  val Id = P( BacktickId | PlainId )
 
   def IdRest(allowDollar: Boolean) = {
     val NonLetterDigitId = if(!allowDollar) "" else "$"
