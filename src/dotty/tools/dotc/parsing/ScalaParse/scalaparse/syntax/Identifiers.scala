@@ -7,9 +7,14 @@ import fastparse.all._
 import Basic._
 import util.Positions._
 import core.Constants._
+import core.Names._
+import core.StdNames._
+import core.Contexts._ 
+
 
 object Identifiers{
   import ast.untpd._
+  import core.Decorators._
   val Operator = P(
     !Keywords ~ (!("/*" | "//") ~ (CharsWhile(x => isOpChar(x) && x != '/') | "/")).rep(1)
   )
@@ -17,9 +22,9 @@ object Identifiers{
   val VarId = VarId0(true)
 
   def VarId0(dollar: Boolean) = P( !Keywords ~ Lower ~ IdRest(dollar) )
-  val PlainId = P( !Keywords ~ Upper ~ IdRest(true) | VarId | Operator ~ (!OpChar | &("/*" | "//")) )
-  val PlainIdNoDollar = P( !Keywords ~ Upper ~ IdRest(false) | VarId0(false) | Operator )
-  val BacktickId = P( "`" ~ CharsWhile(_ != '`') ~ "`" )
+  val PlainId = P( !Keywords ~ Index ~ (Upper ~ IdRest(true) | VarId | Operator ~ (!OpChar | &("/*" | "//"))).! ~ Index).map((x : Tuple3[Int,String,Int]) => termName(x._2.toCharArray(), x._1, x._3)).map(Ident)
+  val PlainIdNoDollar = P( !Keywords ~ Index ~ (Upper ~ IdRest(false) | VarId0(false) | Operator).! ~ Index).map((x : Tuple3[Int,String,Int]) => termName(x._2.toCharArray(), x._1, x._3)).map(Ident)
+  val BacktickId = P( "`" ~ Index ~ CharsWhile(_ != '`').! ~ Index ~ "`" ).map((x : Tuple3[Int,String,Int]) => termName(x._2.toCharArray(), x._1, x._3)).map(BackquotedIdent)
   val Id = P( BacktickId | PlainId )
 
   def IdRest(allowDollar: Boolean) = {
