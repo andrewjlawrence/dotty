@@ -6,10 +6,13 @@ package dottyscalaparse
 import acyclic.file
 import syntax.{Key, Basic}
 
+import core.Names._
+
 import scala.language.implicitConversions
 import syntax.Identifiers
 import fastparse.noApi._
 trait Core extends syntax.Literals{
+  import ast.untpd._
   import fastparse.noApi._
   val WhitespaceApi = new fastparse.WhitespaceApi.Wrapper(WL0)
   import WhitespaceApi._
@@ -92,11 +95,13 @@ trait Core extends syntax.Literals{
    * apart from these and IDs, everything else is illegal
    */
   val PostDotCheck: P0 = P( WL ~ !(`super` | `this` | "{" | `_` | `type`) )
-  val StableId: P0 = {
+  val StableId  = {
     val ClassQualifier = P( "[" ~ Id ~ "]" )
-    val ThisSuper = P( `this` | `super` ~ ClassQualifier.? )
-    val ThisPath: P0 = P( ThisSuper ~ ("." ~ PostDotCheck ~/ Id).rep )
-    val IdPath: P0 = P( Id ~ ("." ~ PostDotCheck ~/ (`this` | Id)).rep ~ ("." ~ ThisPath).? )
-    P( ThisPath | IdPath )
+    val ThisSuper(name: TypeName) = P( (`this`).map(Unit => This(name)) | (`super` ~ ClassQualifier.?).map((id : Ident) => id.name.toTypeName).map((mixname: TypeName) => Super(This(name),mixname)) )
+    def ThisPathSelector(t : Tree) = P(("." ~ PostDotCheck ~/ Id).rep.map((idlist : List[Ident]) => idlist.foldLeft(t)((t2: Tree, id : Ident) => Select(t2, id.name))))
+    def ThisPath(name: TypeName) = P(ThisSuper(name).flatmap(ThisPathSelector))
+    def IdPathAux(name: TypeName) = P(("." ~ PostDotCheck ~/ (`this` | Id)).rep ~ ("." ~ ThisPath(name)).? )
+    val IdPath= P( Id.map(toTypeName).flatmap(IdPathAux))
+    P( ThisPath(tpnme.EMPTY) | IdPath )
   }
 }
